@@ -1,6 +1,9 @@
 import express from "express";
 import cors from "cors";
 import { api } from "./routes/api.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 const port = 5000;
@@ -15,5 +18,11 @@ app.get("/", (req, res, next) => {
 app.use("/api", api);
 
 app.listen(port, () => {
-  console.log(`Servidor corriendo en http://localhost:${port}`);
+  console.log(
+    `Servidor corriendo en http://${
+      process.env.ENV === "local"
+        ? "localhost"
+        : "https://openlayers-comunidad-de-madrid-backend.onrender.com"
+    }:${port}`
+  );
 });
