@@ -1,6 +1,7 @@
 import { MongoClient } from "mongodb";
 
-const uri = "mongodb://localhost:27017/data";
+const uri =
+  "mongodb://mongo:BevCbfgHIQXLGXHCTFjuGdmzaiBYvxQy@monorail.proxy.rlwy.net:31235";
 const client = new MongoClient(uri);
 let conn;
 try {
