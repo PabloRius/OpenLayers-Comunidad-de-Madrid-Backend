@@ -18,6 +18,8 @@
     "dotenv": "^16.4.5",
     "express": "4.19.2",
     "mongodb": "^6.7.0",
-    "nodemon": "^3.1.3"
+    "nodemon": "^3.1.3",
+    "rdf-parse": "^3.0.0",
+    "streamify-string": "^1.0.1"
   }
 }

@@ -1,5 +1,6 @@
 import express from "express";
 import { ver001 } from "./v001.js";
+import { ver002 } from "./v002.js";
 
 const api = express.Router();
 
@@ -12,5 +13,6 @@ api.get("/", (req, res, next) => {
 });
 
 api.use("/v0.0.1", ver001);
+api.use("/v0.0.2", ver002);
 
 export { api };
