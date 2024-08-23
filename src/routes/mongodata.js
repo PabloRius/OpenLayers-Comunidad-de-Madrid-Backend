@@ -1,9 +1,9 @@
 import express from "express";
-import db from "../services/mongo.js";
+// import db from "../services/mongo.js";
 
 const mongodata_endpoint = express.Router();
 
-mongodata_endpoint.get("/", async (req, res, next) => {
+async function mongodata_endpoint_function(req, res, next) {
   try {
     if (!db) return res.status(500).send("Error connecting to the database");
 
@@ -24,6 +24,11 @@ mongodata_endpoint.get("/", async (req, res, next) => {
   } catch (error) {
     return res.status(500).send({ message: error.message });
   }
+}
+
+// mongodata_endpoint.get("/", mongodata_endpoint_function); // Legacy
+mongodata_endpoint.get("/", (req, res, next) => {
+  return res.status(404).send({ message: "Endpoint unavailable, use v002" });
 });
 
 export { mongodata_endpoint };

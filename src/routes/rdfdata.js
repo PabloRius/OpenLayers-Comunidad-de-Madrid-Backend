@@ -7,13 +7,6 @@ const rdf_local_endpoint = express.Router();
 
 rdf_local_endpoint.get("/", async (req, res, next) => {
   try {
-    const year = req.query.year;
-    if (!year) return res.status(500).send("Year parameter was not specified");
-    if (parseInt(year) < 2014 || parseInt(year) > 2023)
-      return res
-        .status(500)
-        .send("Year must be between 2014 and 2023 inclusive");
-
     const municipality = req.query.municipality;
 
     const filePath =
@@ -29,7 +22,6 @@ rdf_local_endpoint.get("/", async (req, res, next) => {
         baseIRI: "http://lodcoremadrid.es",
       })
       .on("data", (quad) => {
-        console.log(`${quad}`);
         quads.push(quad);
       })
       .on("error", (error) => {
@@ -37,24 +29,25 @@ rdf_local_endpoint.get("/", async (req, res, next) => {
         return res.status(500).send({ message: error.message });
       })
       .on("end", () => {
-        console.log("All done!");
-        let currentItem = {};
+        let response = {};
+        const label = `${municipality}`;
+        response[label] = {};
+
         quads.forEach((quad) => {
           const subjectID = quad.subject.value.split("/").pop();
           [current_l, current_i, current_y] = subjectID.split("_");
 
-          if (current_y === year && current_l === municipality) {
+          if (current_l === municipality) {
+            if (!response[label][current_y]) response[label][current_y] = {};
+
             if (
               quad.predicate.value ===
               "http://www.w3.org/TR/rdf-syntax-grammar#value"
             ) {
-              currentItem[current_i] = quad.object.value;
+              response[label][current_y][current_i] = quad.object.value;
             }
           }
         });
-        let response = {};
-        const label = `${municipality}_${year}`;
-        response[label] = currentItem;
         return res.status(200).send(response);
       });
   } catch (error) {
