@@ -8,6 +8,7 @@ const rdf_local_endpoint = express.Router();
 rdf_local_endpoint.get("/", async (req, res, next) => {
   try {
     const municipality = req.query.municipality;
+    const year = req.query.year;
 
     const filePath =
       "src/local_data/Dinamismo-Economico-Actividad-Municipalities.ttl";
@@ -30,24 +31,46 @@ rdf_local_endpoint.get("/", async (req, res, next) => {
       })
       .on("end", () => {
         let response = {};
-        const label = `${municipality}`;
-        response[label] = {};
 
-        quads.forEach((quad) => {
-          const subjectID = quad.subject.value.split("/").pop();
-          [current_l, current_i, current_y] = subjectID.split("_");
+        if (municipality) {
+          const label = `${municipality}`;
+          response[label] = {};
 
-          if (current_l === municipality) {
-            if (!response[label][current_y]) response[label][current_y] = {};
+          quads.forEach((quad) => {
+            const subjectID = quad.subject.value.split("/").pop();
+            [current_l, current_i, current_y] = subjectID.split("_");
 
-            if (
-              quad.predicate.value ===
-              "http://www.w3.org/TR/rdf-syntax-grammar#value"
-            ) {
-              response[label][current_y][current_i] = quad.object.value;
+            if (current_l === municipality) {
+              if (!response[label][current_y]) response[label][current_y] = {};
+              if (
+                quad.predicate.value ===
+                "http://www.w3.org/2001/XMLSchema#decimal"
+              ) {
+                console.log(quad.object.value);
+                response[label][current_y][current_i] = quad.object.value;
+              }
             }
-          }
-        });
+          });
+        } else if (year) {
+          quads.forEach((quad) => {
+            const subjectID = quad.subject.value.split("/").pop();
+            [current_l, current_i, current_y] = subjectID.split("_");
+
+            if (current_y === year) {
+              if (!response[current_l]) response[current_l] = {};
+              if (
+                quad.predicate.value ===
+                "http://www.w3.org/2001/XMLSchema#decimal"
+              ) {
+                response[current_l][current_i] = quad.object.value;
+              }
+            }
+          });
+        } else {
+          return res
+            .status(400)
+            .send({ message: "Municipality or year must be specified" });
+        }
         return res.status(200).send(response);
       });
   } catch (error) {
